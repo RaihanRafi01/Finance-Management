@@ -4,37 +4,51 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class IncomeChartScreen extends StatefulWidget {
-  const IncomeChartScreen({super.key});
+class IncomeExpenseChartScreen extends StatefulWidget {
+  const IncomeExpenseChartScreen({super.key});
 
   @override
-  State<IncomeChartScreen> createState() => _IncomeChartScreenState();
+  State<IncomeExpenseChartScreen> createState() =>
+      _IncomeExpenseChartScreenState();
 }
 
-class _IncomeChartScreenState extends State<IncomeChartScreen> {
+class _IncomeExpenseChartScreenState extends State<IncomeExpenseChartScreen> {
   List<BarChartGroupData> _incomeGroups = [];
+  List<BarChartGroupData> _expenseGroups = [];
   List<BarChartGroupData> _allGroups = [];
   String _selectedView = 'weekly'; // default view
+  String _selectedDataType = 'income'; // 'income', 'expense', or 'both'
 
   @override
   void initState() {
     super.initState();
-    _fetchIncomeData();
+    _fetchData();
   }
 
-  Future<void> _fetchIncomeData() async {
+  Future<void> _fetchData() async {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    Query query = FirebaseFirestore.instance
+    Query incomeQuery = FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
         .collection('income')
         .orderBy('date');
 
-    DateTime startDate = _getStartDate();
-    query = query.where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
+    Query expenseQuery = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('expense')
+        .orderBy('date');
 
-    final snapshot = await query.get();
-    List<BarChartGroupData> groups = snapshot.docs.map((doc) {
+    DateTime startDate = _getStartDate();
+    incomeQuery = incomeQuery.where('date',
+        isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
+    expenseQuery = expenseQuery.where('date',
+        isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
+
+    final incomeSnapshot = await incomeQuery.get();
+    final expenseSnapshot = await expenseQuery.get();
+
+    List<BarChartGroupData> incomeGroups = incomeSnapshot.docs.map((doc) {
       final income = doc.data() as Map<String, dynamic>;
       final date = (income['date'] as Timestamp).toDate();
       final amount = (income['amount'] as num).toDouble();
@@ -46,7 +60,26 @@ class _IncomeChartScreenState extends State<IncomeChartScreen> {
         barRods: [
           BarChartRodData(
             toY: amount < 0 ? 0 : amount, // Avoid negative amounts
-            color: Colors.blue,
+            color: Colors.greenAccent,
+            width: 16, // Adjust bar width as needed
+          ),
+        ],
+      );
+    }).toList();
+
+    List<BarChartGroupData> expenseGroups = expenseSnapshot.docs.map((doc) {
+      final expense = doc.data() as Map<String, dynamic>;
+      final date = (expense['date'] as Timestamp).toDate();
+      final amount = (expense['amount'] as num).toDouble();
+
+      double xValue = _getXValue(date);
+
+      return BarChartGroupData(
+        x: xValue.toInt(),
+        barRods: [
+          BarChartRodData(
+            toY: amount < 0 ? 0 : amount, // Avoid negative amounts
+            color: Colors.redAccent,
             width: 16, // Adjust bar width as needed
           ),
         ],
@@ -54,7 +87,8 @@ class _IncomeChartScreenState extends State<IncomeChartScreen> {
     }).toList();
 
     setState(() {
-      _incomeGroups = groups;
+      _incomeGroups = incomeGroups;
+      _expenseGroups = expenseGroups;
       _generateAllGroups();
     });
   }
@@ -76,7 +110,10 @@ class _IncomeChartScreenState extends State<IncomeChartScreen> {
   double _getXValue(DateTime date) {
     switch (_selectedView) {
       case 'weekly':
-        return date.difference(DateTime.now().subtract(Duration(days: 7))).inDays.toDouble();
+        return date
+            .difference(DateTime.now().subtract(Duration(days: 7)))
+            .inDays
+            .toDouble();
       case 'monthly':
         return date.month.toDouble();
       case 'yearly':
@@ -124,7 +161,14 @@ class _IncomeChartScreenState extends State<IncomeChartScreen> {
   void _onViewChanged(String view) {
     setState(() {
       _selectedView = view;
-      _fetchIncomeData(); // Re-fetch data based on selected view
+      _fetchData(); // Re-fetch data based on selected view
+    });
+  }
+
+  void _onDataTypeChanged(String dataType) {
+    setState(() {
+      _selectedDataType = dataType;
+      _fetchData(); // Re-fetch data based on selected data type
     });
   }
 
@@ -139,23 +183,57 @@ class _IncomeChartScreenState extends State<IncomeChartScreen> {
         child: Column(
           children: [
             const Text(
-              'Income Chart',
+              'Income & Expense Chart',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             ToggleButtons(
-              isSelected: ['weekly', 'monthly', 'yearly'].map((view) => _selectedView == view).toList(),
+              isSelected: ['weekly', 'monthly', 'yearly']
+                  .map((view) => _selectedView == view)
+                  .toList(),
               onPressed: (index) {
                 _onViewChanged(['weekly', 'monthly', 'yearly'][index]);
               },
               children: const [
-                Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('Weekly')),
-                Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('Monthly')),
-                Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('Yearly')),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text('Weekly')),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text('Monthly')),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text('Yearly')),
               ],
             ),
             const SizedBox(height: 20),
-            _incomeGroups.isEmpty
+            ToggleButtons(
+              isSelected: ['income', 'expense', 'both']
+                  .map((dataType) => _selectedDataType == dataType)
+                  .toList(),
+              onPressed: (index) {
+                _onDataTypeChanged(['income', 'expense', 'both'][index]);
+              },
+              selectedColor: Colors.white, // Text color when selected
+              fillColor: _selectedDataType == 'income'
+                  ? Colors.greenAccent
+                  : _selectedDataType == 'expense'
+                  ? Colors.redAccent
+                  : Colors.blueAccent,
+              children: const [
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text('Income')),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text('Expense')),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text('Both')),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _incomeGroups.isEmpty && _expenseGroups.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : Expanded(
               child: SingleChildScrollView(
@@ -165,16 +243,19 @@ class _IncomeChartScreenState extends State<IncomeChartScreen> {
                   child: BarChart(
                     BarChartData(
                       minY: 0,
-                      maxY: (_incomeGroups.isNotEmpty ? _incomeGroups.map((group) => group.barRods.first.toY).reduce((a, b) => a > b ? a : b) : 0) + 100,
+                      maxY: _calculateMaxY(),
                       titlesData: FlTitlesData(
                         bottomTitles: _buildBottomTitles(),
                         leftTitles: _buildLeftTitles(),
-                        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                       ),
                       borderData: FlBorderData(
                         show: true,
-                        border: Border.all(color: const Color(0xff37434d), width: 1),
+                        border: Border.all(
+                            color: const Color(0xff37434d), width: 1),
                       ),
                       barGroups: mergedGroups,
                     ),
@@ -197,16 +278,24 @@ class _IncomeChartScreenState extends State<IncomeChartScreen> {
           String title;
           if (_selectedView == 'weekly') {
             final weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            title = (value.toInt() >= 0 && value.toInt() < weekdays.length) ? weekdays[value.toInt()] : '';
+            title = (value.toInt() >= 0 && value.toInt() < weekdays.length)
+                ? weekdays[value.toInt()]
+                : '';
           } else if (_selectedView == 'monthly') {
-            final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            title = (value.toInt() >= 0 && value.toInt() < months.length) ? months[value.toInt()] : '';
+            final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+            ];
+            title = (value.toInt() >= 0 && value.toInt() < months.length)
+                ? months[value.toInt()]
+                : '';
           } else if (_selectedView == 'yearly') {
             title = value.toInt().toString();
           } else {
-            title = "";
+            title = '';
           }
-          return Padding(padding: const EdgeInsets.only(top: 8.0), child: Text(title, style: const TextStyle(fontSize: 10)));
+          return Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(title, style: const TextStyle(fontSize: 12)),
+          );
         },
       ),
     );
@@ -215,33 +304,74 @@ class _IncomeChartScreenState extends State<IncomeChartScreen> {
   AxisTitles _buildLeftTitles() {
     return AxisTitles(
       sideTitles: SideTitles(
-        showTitles: true,
         reservedSize: 40,
+        showTitles: true,
+        interval: _calculateYInterval(),
         getTitlesWidget: (value, meta) {
-          return Padding(padding: const EdgeInsets.only(right: 8.0), child: Text(value.toString(), style: const TextStyle(fontSize: 10)));
+          return Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              value.toInt().toString(),
+              style: const TextStyle(fontSize: 12),
+            ),
+          );
         },
       ),
     );
   }
 
   List<BarChartGroupData> _mergeGroups() {
-    List<BarChartGroupData> mergedGroups = List.from(_allGroups);
-    for (var group in _incomeGroups) {
-      int index = mergedGroups.indexWhere((g) => g.x == group.x);
-      if (index != -1) {
-        mergedGroups[index] = group;
+    final mergedGroups = List<BarChartGroupData>.from(_allGroups);
+
+    if (_selectedDataType == 'income' || _selectedDataType == 'both') {
+      for (var group in _incomeGroups) {
+        int index = mergedGroups.indexWhere((g) => g.x == group.x);
+        if (index != -1) {
+          mergedGroups[index] = mergedGroups[index].copyWith(
+            barRods: [
+              ...mergedGroups[index].barRods,
+              ...group.barRods,
+            ],
+          );
+        } else {
+          mergedGroups.add(group);
+        }
       }
     }
+
+    if (_selectedDataType == 'expense' || _selectedDataType == 'both') {
+      for (var group in _expenseGroups) {
+        int index = mergedGroups.indexWhere((g) => g.x == group.x);
+        if (index != -1) {
+          mergedGroups[index] = mergedGroups[index].copyWith(
+            barRods: [
+              ...mergedGroups[index].barRods,
+              ...group.barRods,
+            ],
+          );
+        } else {
+          mergedGroups.add(group);
+        }
+      }
+    }
+
     return mergedGroups;
   }
 
-  double _calculateMaxX() {
-    double maxX = _incomeGroups.isNotEmpty
-        ? _incomeGroups.map((group) => group.x.toDouble()).reduce((a, b) => a > b ? a : b)
-        : 0;
-    if (_selectedView == 'weekly') return 6;
-    if (_selectedView == 'monthly') return 11;
-    if (_selectedView == 'yearly') return (DateTime.now().year + 2).toDouble();
-    return maxX;
+  double _calculateMaxY() {
+    final allYValues = [
+      ..._incomeGroups.expand((group) => group.barRods.map((rod) => rod.toY)),
+      ..._expenseGroups.expand((group) => group.barRods.map((rod) => rod.toY)),
+    ];
+    if (allYValues.isEmpty) return 0;
+    final maxYValue = allYValues.reduce((a, b) => a > b ? a : b);
+    return (maxYValue * 1.2).ceilToDouble(); // Add some padding to maxY
+  }
+
+  double _calculateYInterval() {
+    final maxY = _calculateMaxY();
+    if (maxY <= 5) return 1;
+    if (maxY <= 10) return 2;
+    return 50;
   }
 }
