@@ -1,7 +1,9 @@
 import 'package:finance_management/firebase_options.dart';
 import 'package:finance_management/services/recurringFinanceManager.dart';
 import 'package:finance_management/ui/screens/authentication.dart';
+import 'package:finance_management/ui/screens/home.dart';
 import 'package:finance_management/ui/screens/monthlyFinance.dart';
+import 'package:finance_management/ui/screens/newFinance.dart';
 import 'package:finance_management/ui/screens/profile.dart';
 import 'package:finance_management/ui/screens/splash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,9 +31,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Finance Management',
       theme: ThemeData().copyWith(
-        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 17, 177, 172)),
       ),
@@ -42,7 +44,7 @@ class MyApp extends StatelessWidget {
             return const SplashScreen();
           }
           if (snapshot.hasData) {
-            return AuthScreen();
+            return HomeScreen();
           }
           return const AuthScreen();
         },
