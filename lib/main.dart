@@ -1,9 +1,8 @@
 import 'package:finance_management/firebase_options.dart';
-import 'package:finance_management/ui/screens/IncomeChart.dart';
+import 'package:finance_management/ui/screens/chart.dart';
 import 'package:finance_management/ui/screens/authentication.dart';
-import 'package:finance_management/ui/screens/expense.dart';
 import 'package:finance_management/ui/screens/home.dart';
-import 'package:finance_management/ui/screens/income.dart';
+import 'package:finance_management/ui/screens/newFinance.dart';
 import 'package:finance_management/ui/screens/splash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -36,7 +35,7 @@ class MyApp extends StatelessWidget {
             return const SplashScreen();
           }
           if(snapshot.hasData){
-            return const IncomeExpenseChartScreen();
+            return const NewFinanceScreen();
           }
           return const AuthScreen();
         },),

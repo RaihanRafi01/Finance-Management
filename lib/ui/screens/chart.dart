@@ -17,7 +17,7 @@ class _IncomeExpenseChartScreenState extends State<IncomeExpenseChartScreen> {
   List<BarChartGroupData> _expenseGroups = [];
   List<BarChartGroupData> _allGroups = [];
   String _selectedView = 'weekly'; // default view
-  String _selectedDataType = 'income'; // 'income', 'expense', or 'both'
+  String _selectedDataType = 'Income'; // 'income', 'expense', or 'both'
 
   @override
   void initState() {
@@ -30,13 +30,13 @@ class _IncomeExpenseChartScreenState extends State<IncomeExpenseChartScreen> {
     Query incomeQuery = FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
-        .collection('income')
+        .collection('Income')
         .orderBy('date');
 
     Query expenseQuery = FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
-        .collection('expense')
+        .collection('Expense')
         .orderBy('date');
 
     DateTime startDate = _getStartDate();
@@ -208,16 +208,16 @@ class _IncomeExpenseChartScreenState extends State<IncomeExpenseChartScreen> {
             ),
             const SizedBox(height: 20),
             ToggleButtons(
-              isSelected: ['income', 'expense', 'both']
+              isSelected: ['Income', 'Expense', 'Both']
                   .map((dataType) => _selectedDataType == dataType)
                   .toList(),
               onPressed: (index) {
-                _onDataTypeChanged(['income', 'expense', 'both'][index]);
+                _onDataTypeChanged(['Income', 'Expense', 'Both'][index]);
               },
               selectedColor: Colors.white, // Text color when selected
-              fillColor: _selectedDataType == 'income'
+              fillColor: _selectedDataType == 'Income'
                   ? Colors.greenAccent
-                  : _selectedDataType == 'expense'
+                  : _selectedDataType == 'Expense'
                   ? Colors.redAccent
                   : Colors.blueAccent,
               children: const [
@@ -323,7 +323,7 @@ class _IncomeExpenseChartScreenState extends State<IncomeExpenseChartScreen> {
   List<BarChartGroupData> _mergeGroups() {
     final mergedGroups = List<BarChartGroupData>.from(_allGroups);
 
-    if (_selectedDataType == 'income' || _selectedDataType == 'both') {
+    if (_selectedDataType == 'Income' || _selectedDataType == 'Both') {
       for (var group in _incomeGroups) {
         int index = mergedGroups.indexWhere((g) => g.x == group.x);
         if (index != -1) {
@@ -339,7 +339,7 @@ class _IncomeExpenseChartScreenState extends State<IncomeExpenseChartScreen> {
       }
     }
 
-    if (_selectedDataType == 'expense' || _selectedDataType == 'both') {
+    if (_selectedDataType == 'Expense' || _selectedDataType == 'Both') {
       for (var group in _expenseGroups) {
         int index = mergedGroups.indexWhere((g) => g.x == group.x);
         if (index != -1) {
