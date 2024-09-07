@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finance_management/services/recurringFinanceManager.dart';
 import 'package:finance_management/ui/screens/incomeExpenseDetails.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,8 @@ import 'package:intl/intl.dart';
 
 class SubmitFinance extends StatefulWidget {
   final String type;
-  const SubmitFinance({super.key, required this.type});
+  final bool isRecurring; // 'income' or 'expense'
+  const SubmitFinance({super.key, required this.type, required this.isRecurring});
 
   @override
   State<SubmitFinance> createState() => _SubmitFinanceState();
@@ -14,10 +16,12 @@ class SubmitFinance extends StatefulWidget {
 
 class _SubmitFinanceState extends State<SubmitFinance> {
   final _formKey = GlobalKey<FormState>();
-  var _enteredIncomeAmount = 0;
-  var _enteredIncomeTitle = '';
+  var _enteredAmount = 0;
+  var _enteredTitle = '';
   DateTime? _selectedDate;
   bool _isLoading = false;
+
+  final RecurringFinanceManager _recurringFinanceManager = RecurringFinanceManager();
 
   void _presentDatePicker() async {
     final now = DateTime.now();
@@ -36,7 +40,7 @@ class _SubmitFinanceState extends State<SubmitFinance> {
   void _submitForm() async {
     if (!_formKey.currentState!.validate() || _selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Please fill out all fields correctly.'),
         ),
       );
@@ -49,25 +53,38 @@ class _SubmitFinanceState extends State<SubmitFinance> {
     });
 
     try {
-      final uid = FirebaseAuth.instance.currentUser!.uid;
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .collection(widget.type)
-          .add({
-        'title': _enteredIncomeTitle,
-        'date': _selectedDate,
-        'amount': _enteredIncomeAmount,
-        'type': widget.type,
-        'uId': uid,
-      });
+      if (widget.isRecurring) {
+        // Set recurring finance entry
+        await _recurringFinanceManager.setRecurringFinanceEntry(
+          type: widget.type,
+          title: _enteredTitle,
+          amount: _enteredAmount,
+        );
+      } else {
+        // Normal submission without recurring
+        final uid = FirebaseAuth.instance.currentUser!.uid;
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .collection(widget.type)
+            .add({
+          'title': _enteredTitle,
+          'date': _selectedDate,
+          'amount': _enteredAmount,
+          'type': widget.type,
+          'isRecurring': false,
+          'recurrenceType': 'monthly',
+          'uId': uid,
+        });
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${widget.type} successfully submitted!'),
           action: SnackBarAction(
             label: 'VIEW',
-            onPressed: (){
+            onPressed: () {
+              // Navigate to details screen
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const DetailsScreen(),
@@ -77,7 +94,6 @@ class _SubmitFinanceState extends State<SubmitFinance> {
           ),
         ),
       );
-
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -96,7 +112,7 @@ class _SubmitFinanceState extends State<SubmitFinance> {
     return SingleChildScrollView(
       child: Center(
         child: SizedBox(
-          width: double.infinity, // Make sure the form takes the full width
+          width: double.infinity,
           child: Form(
             key: _formKey,
             child: Column(
@@ -112,7 +128,7 @@ class _SubmitFinanceState extends State<SubmitFinance> {
                     return null;
                   },
                   onSaved: (value) {
-                    _enteredIncomeTitle = value!;
+                    _enteredTitle = value!;
                   },
                 ),
                 TextFormField(
@@ -120,7 +136,7 @@ class _SubmitFinanceState extends State<SubmitFinance> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter an ${widget.type} amount';
+                      return 'Please enter an amount';
                     }
                     if (double.tryParse(value) == null) {
                       return 'Please enter a valid number';
@@ -131,7 +147,7 @@ class _SubmitFinanceState extends State<SubmitFinance> {
                     return null;
                   },
                   onSaved: (value) {
-                    _enteredIncomeAmount = int.parse(value!);
+                    _enteredAmount = int.parse(value!);
                   },
                 ),
                 const SizedBox(height: 20),
@@ -151,17 +167,6 @@ class _SubmitFinanceState extends State<SubmitFinance> {
                   )
                       : const Text('Submit'),
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const DetailsScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('View Details'),
-                ),
               ],
             ),
           ),
@@ -170,7 +175,6 @@ class _SubmitFinanceState extends State<SubmitFinance> {
     );
   }
 }
-
 extension Capitalize on String {
   String capitalize() {
     if (this == null) return '';

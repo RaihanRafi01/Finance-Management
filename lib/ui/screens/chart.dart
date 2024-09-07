@@ -177,7 +177,7 @@ class _IncomeExpenseChartScreenState extends State<IncomeExpenseChartScreen> {
     List<BarChartGroupData> mergedGroups = _mergeGroups();
 
     return Scaffold(
-      appBar: const CustomAppBar(),
+      appBar: const CustomAppBar(title: 'Chart',),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

@@ -2,6 +2,7 @@ import 'package:finance_management/firebase_options.dart';
 import 'package:finance_management/ui/screens/chart.dart';
 import 'package:finance_management/ui/screens/authentication.dart';
 import 'package:finance_management/ui/screens/home.dart';
+import 'package:finance_management/ui/screens/monthlyFinance.dart';
 import 'package:finance_management/ui/screens/newFinance.dart';
 import 'package:finance_management/ui/screens/splash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
             return const SplashScreen();
           }
           if(snapshot.hasData){
-            return const NewFinanceScreen();
+            return const MonthlyFinanceScreen();
           }
           return const AuthScreen();
         },),
