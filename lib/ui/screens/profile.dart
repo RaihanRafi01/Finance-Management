@@ -41,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _pickImage() async {
     final pickedImage = await picker.pickImage(
-      source: ImageSource.camera, // or ImageSource.gallery
+      source: ImageSource.gallery, // or ImageSource.gallery
       imageQuality: 50,
       maxWidth: 150,
     );
@@ -140,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text('No user data found.'));
+            return const Center(child: Text('No user data found. Please try again later'));
           }
 
           final userData = snapshot.data!.data() as Map<String, dynamic>;

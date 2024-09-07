@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
             return const SplashScreen();
           }
           if (snapshot.hasData) {
-            return ProfileScreen();
+            return AuthScreen();
           }
           return const AuthScreen();
         },
