@@ -1,7 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finance_management/ui/screens/chart.dart';
+import 'package:finance_management/ui/screens/incomeExpenseDetails.dart';
+import 'package:finance_management/ui/screens/monthlyFinance.dart';
+import 'package:finance_management/ui/screens/newFinance.dart';
+import 'package:finance_management/ui/screens/profile.dart';
 import 'package:finance_management/ui/widgets/customAppBar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
     while (true) {
-      // Fetch income and expense snapshots
       final incomeSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
@@ -31,12 +36,10 @@ class _HomeScreenState extends State<HomeScreen> {
       double totalIncome = 0.0;
       double totalExpense = 0.0;
 
-      // Calculate total income
       for (var doc in incomeSnapshot.docs) {
         totalIncome += doc.data()['amount']?.toDouble() ?? 0.0;
       }
 
-      // Calculate total expense
       for (var doc in expenseSnapshot.docs) {
         totalExpense += doc.data()['amount']?.toDouble() ?? 0.0;
       }
@@ -47,7 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
         'totalBalance': totalIncome - totalExpense,
       };
 
-      // Wait for a short time before the next update
       await Future.delayed(Duration(seconds: 5));
     }
   }
@@ -56,30 +58,85 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(title: 'Home'),
-      body: StreamBuilder<Map<String, double>>(
-        stream: _getTotalsStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final data = snapshot.data!;
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Total Income: \$${data['totalIncome']?.toStringAsFixed(2)}'),
-                  Text('Total Expense: \$${data['totalExpense']?.toStringAsFixed(2)}'),
-                  Text('Total Balance: \$${data['totalBalance']?.toStringAsFixed(2)}'),
-                ],
-              ),
-            );
-          } else {
-            return Center(child: Text('No data available'));
-          }
-        },
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StreamBuilder<Map<String, double>>(
+              stream: _getTotalsStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  final data = snapshot.data!;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Total Income: \$${data['totalIncome']?.toStringAsFixed(2)}'),
+                      Text('Total Expense: \$${data['totalExpense']?.toStringAsFixed(2)}'),
+                      Text('Total Balance: \$${data['totalBalance']?.toStringAsFixed(2)}'),
+                    ],
+                  );
+                } else {
+                  return Center(child: Text('No data available'));
+                }
+              },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChartScreen()),
+                );
+              },
+              child: Text('View Chart'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DetailsScreen()),
+                );
+              },
+              child: Text('View Finance'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MonthlyFinanceScreen()),
+                );
+              },
+              child: Text('Add Monthly Finance'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NewFinanceScreen()),
+                );
+              },
+              child: Text('Add Finance'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfileScreen()),
+                );
+              },
+              child: Text('Profile'),
+            ),
+          ],
+        ),
       ),
     );
   }

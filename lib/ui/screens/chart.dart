@@ -4,15 +4,15 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class IncomeExpenseChartScreen extends StatefulWidget {
-  const IncomeExpenseChartScreen({super.key});
+class ChartScreen extends StatefulWidget {
+  const ChartScreen({super.key});
 
   @override
-  State<IncomeExpenseChartScreen> createState() =>
-      _IncomeExpenseChartScreenState();
+  State<ChartScreen> createState() =>
+      _ChartScreenState();
 }
 
-class _IncomeExpenseChartScreenState extends State<IncomeExpenseChartScreen> {
+class _ChartScreenState extends State<ChartScreen> {
   List<BarChartGroupData> _incomeGroups = [];
   List<BarChartGroupData> _expenseGroups = [];
   List<BarChartGroupData> _allGroups = [];
