@@ -49,19 +49,74 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
         : (widget.isRecurring ? 'Monthly Expense' : 'Expense');
 
 
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 400),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 400),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [cardColor, Colors.white],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 6,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      isIncome ? Icons.monetization_on : Icons.money_off,
+                      size: 32,
+                      color: iconColor,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      text,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal[900],
+                        fontFamily: 'Roboto', // Replace with your custom font if needed
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Switch(
+                  value: isIncome,
+                  onChanged: _toggleType,
+                  activeColor: Colors.white,
+                  inactiveThumbColor: Colors.white,
+                  activeTrackColor: iconColor.withOpacity(0.5),
+                  inactiveTrackColor: iconColor.withOpacity(0.2),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 24),
+          Expanded(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 450),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [cardColor, Colors.white],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.topRight,
                 ),
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: [
@@ -73,70 +128,13 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
                   ),
                 ],
               ),
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        isIncome ? Icons.monetization_on : Icons.money_off,
-                        size: 32,
-                        color: iconColor,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        text,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal[900],
-                          fontFamily: 'Roboto', // Replace with your custom font if needed
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Switch(
-                    value: isIncome,
-                    onChanged: _toggleType,
-                    activeColor: Colors.white,
-                    inactiveThumbColor: Colors.white,
-                    activeTrackColor: iconColor.withOpacity(0.5),
-                    inactiveTrackColor: iconColor.withOpacity(0.2),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: SubmitFinance(type: type,isRecurring: widget.isRecurring,),
               ),
             ),
-            SizedBox(height: 24),
-            Expanded(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 450),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [cardColor, Colors.white],
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.topRight,
-                  ),
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 2,
-                      blurRadius: 6,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: SubmitFinance(type: type,isRecurring: widget.isRecurring,),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

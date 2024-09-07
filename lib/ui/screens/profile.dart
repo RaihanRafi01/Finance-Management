@@ -183,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Container(
                         width: double.infinity,
                         padding: EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(color: Colors.black54,
+                        decoration: BoxDecoration(color: Colors.white60,
                           borderRadius: BorderRadius.circular(20),
                       gradient: const LinearGradient(
                       colors: [Colors.tealAccent, Colors.deepOrangeAccent],

@@ -57,7 +57,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (!snapshot.hasData || snapshot.data![0].docs.isEmpty) {
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return _noRecordsWidget(context);
             }
 
@@ -69,7 +69,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
             final colors = combinedDocs.map((doc) {
               final data = doc.data() as Map<String, dynamic>;
-              final type = data.containsKey('type') ? data['type'] : 'unknown';
+              final type = data['type'] as String?;
               return type == 'Income'
                   ? Colors.greenAccent
                   : Colors.redAccent;
@@ -138,8 +138,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: _selectedIndex == 2 ? Colors.redAccent : Colors.teal, // Color for selected item
-        unselectedItemColor: Colors.grey, // Color for unselected items
+        selectedItemColor: _selectedIndex == 2 ? Colors.redAccent : Colors.teal,
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
     );
