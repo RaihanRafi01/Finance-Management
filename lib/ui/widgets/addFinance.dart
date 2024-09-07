@@ -43,6 +43,7 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
     // Define colors for Income and Expense
     final Color cardColor = isIncome ? Colors.teal[100]! : Colors.deepOrange[100]!;
     final Color iconColor = isIncome ? Colors.teal : Colors.deepOrange;
+    final String type = isIncome ? 'Income' : 'Expense';
     final String text = isIncome
         ? (widget.isRecurring ? 'Monthly Income' : 'Income')
         : (widget.isRecurring ? 'Monthly Expense' : 'Expense');
@@ -130,7 +131,7 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: SubmitFinance(type: text,isRecurring: widget.isRecurring,),
+                  child: SubmitFinance(type: type,isRecurring: widget.isRecurring,),
                 ),
               ),
             ),

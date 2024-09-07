@@ -9,57 +9,93 @@ class RecurringFinanceManager {
   // Call this method when the app starts
   Future<void> checkAndAddRecurringFinance() async {
     final prefs = await SharedPreferences.getInstance();
-    final lastAddedMonth = prefs.getInt('lastAddedMonth') ?? DateTime.now().month;
+    final lastCheckedMonth = prefs.getInt('lastCheckedMonth') ?? DateTime.now().month;
+    final currentMonth = DateTime.now().month;
+    final currentYear = DateTime.now().year;
 
-    // If a new month, add recurring income/expense
-    if (DateTime.now().month != lastAddedMonth) {
-      await _addRecurringFinanceEntries();
+    print('Last Checked Month: $lastCheckedMonth');
+    print('Current Month: $currentMonth');
 
-      // Update last added month
-      await prefs.setInt('lastAddedMonth', DateTime.now().month);
+    // If it's a new month, check and add recurring entries
+    if (currentMonth != lastCheckedMonth || currentYear != DateTime.now().year) {
+      await _checkAndAddRecurringEntries();
+
+      // Update the last checked month in shared preferences
+      await prefs.setInt('lastCheckedMonth', currentMonth);
     }
   }
 
-  Future<void> _addRecurringFinanceEntries() async {
+  Future<void> _checkAndAddRecurringEntries() async {
     try {
-      final uid = _auth.currentUser!.uid;
+      final uid = _auth.currentUser?.uid;
 
-      // Query recurring income
-      final incomeSnapshot = await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('Income')
-          .where('isRecurring', isEqualTo: true)
-          .get();
-
-      // Add recurring income entries for the new month
-      for (var doc in incomeSnapshot.docs) {
-        final data = doc.data();
-        await _firestore.collection('users').doc(uid).collection('Income').add({
-          ...data,
-          'date': DateTime.now(), // Add for current month
-        });
+      if (uid == null) {
+        throw Exception('User is not logged in.');
       }
 
-      // Query recurring expense
-      final expenseSnapshot = await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('Expense')
-          .where('isRecurring', isEqualTo: true)
-          .get();
+      // Process recurring income
+      await _processRecurringEntries('Income');
 
-      // Add recurring expense entries for the new month
-      for (var doc in expenseSnapshot.docs) {
-        final data = doc.data();
-        await _firestore.collection('users').doc(uid).collection('Expense').add({
-          ...data,
-          'date': DateTime.now(), // Add for current month
-        });
-      }
+      // Process recurring expenses
+      await _processRecurringEntries('Expense');
     } catch (e) {
-      print('Error adding recurring finance entries: $e');
+      print('Error checking and adding recurring entries: $e');
     }
+  }
+
+  Future<void> _processRecurringEntries(String collection) async {
+    final uid = _auth.currentUser?.uid;
+
+    if (uid == null) {
+      throw Exception('User is not logged in.');
+    }
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection(collection)
+        .where('isRecurring', isEqualTo: true)
+        .get();
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final startDate = (data['date'] as Timestamp).toDate();
+      DateTime nextDate = _getFirstDayOfNextMonth(startDate);
+
+      while (_isDateInPast(nextDate)) {
+        await _addNewEntry(collection, data, nextDate);
+
+        // Update to the next occurrence date
+        nextDate = _getFirstDayOfNextMonth(nextDate);
+        await _firestore.collection('users').doc(uid).collection(collection).doc(doc.id).update({
+          'date': nextDate, // Update to the next occurrence date
+        });
+      }
+    }
+  }
+
+  Future<void> _addNewEntry(String collection, Map<String, dynamic> data, DateTime newDate) async {
+    final uid = _auth.currentUser?.uid;
+
+    if (uid == null) {
+      throw Exception('User is not logged in.');
+    }
+
+    await _firestore.collection('users').doc(uid).collection(collection).add({
+      ...data,
+      'date': newDate, // Set date for the new month
+      'isRecurring': false, // Mark the new entry as non-recurring
+    });
+  }
+
+  // Helper function to get the first day of the next month
+  DateTime _getFirstDayOfNextMonth(DateTime date) {
+    return DateTime(date.year, date.month + 1, 1);
+  }
+
+  // Helper function to check if a date is in the past
+  bool _isDateInPast(DateTime date) {
+    return DateTime.now().isAfter(date);
   }
 
   // Method to set a recurring entry
@@ -67,16 +103,22 @@ class RecurringFinanceManager {
     required String type,
     required String title,
     required int amount,
+    required DateTime? startDate,
   }) async {
     try {
-      final uid = _auth.currentUser!.uid;
+      final uid = _auth.currentUser?.uid;
+
+      if (uid == null) {
+        throw Exception('User is not logged in.');
+      }
+
       await _firestore.collection('users').doc(uid).collection(type).add({
         'title': title,
         'amount': amount,
-        'date': DateTime.now(),
+        'date': startDate,
         'type': type,
         'isRecurring': true, // Mark this as a recurring entry
-        'recurrenceType': 'monthly',
+        'recurrenceType': 'monthly', // Specify recurrence type
         'uId': uid,
       });
     } catch (e) {

@@ -59,6 +59,7 @@ class _SubmitFinanceState extends State<SubmitFinance> {
           type: widget.type,
           title: _enteredTitle,
           amount: _enteredAmount,
+          startDate: _selectedDate,
         );
       } else {
         // Normal submission without recurring
