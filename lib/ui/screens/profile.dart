@@ -23,6 +23,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _emailController = TextEditingController();
 
   bool _isEditing = false;
+  bool _showInfoBubble = false;
 
   @override
   void initState() {
@@ -41,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _pickImage() async {
     final pickedImage = await picker.pickImage(
-      source: ImageSource.gallery, // or ImageSource.gallery
+      source: ImageSource.gallery,
       imageQuality: 50,
       maxWidth: 150,
     );
@@ -89,7 +90,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _cancelChanges() {
     setState(() {
       _isEditing = false;
-      // Optionally reset the text fields to original values
+    });
+  }
+
+  void _toggleInfoBubble() {
+    setState(() {
+      _showInfoBubble = !_showInfoBubble;
+    });
+
+    Future.delayed(const Duration(seconds: 4), () {
+      if (mounted) {
+        setState(() {
+          _showInfoBubble = false;
+        });
+      }
     });
   }
 
@@ -127,117 +141,150 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: _toggleInfoBubble,
+          ),
+        ],
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: _userData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Stack(
+        children: [
+          FutureBuilder<DocumentSnapshot>(
+            future: _userData,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-          if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text('No user data found. Please try again later'));
-          }
+              if (!snapshot.hasData || !snapshot.data!.exists) {
+                return const Center(child: Text('No user data found. Please try again later'));
+              }
 
-          final userData = snapshot.data!.data() as Map<String, dynamic>;
-          final profilePicUrl = userData['picture'] as String?;
-          final hasProfilePic = profilePicUrl != null && profilePicUrl.isNotEmpty;
+              final userData = snapshot.data!.data() as Map<String, dynamic>;
+              final profilePicUrl = userData['picture'] as String?;
+              final hasProfilePic = profilePicUrl != null && profilePicUrl.isNotEmpty;
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                // Profile Picture
-                InkWell(
-                  onTap: _pickImage,
-                  borderRadius: BorderRadius.circular(50),
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundImage: _pickedImageFile != null
-                        ? FileImage(_pickedImageFile!)
-                        : (hasProfilePic
-                        ? NetworkImage(profilePicUrl)
-                        : const AssetImage('assets/images/add_image.png')) as ImageProvider,
-                    backgroundColor: Colors.grey[200],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Card with Gradient and User Info
-                Expanded(
-                  child: GestureDetector(
-                    onLongPress: () {
-                      setState(() {
-                        _isEditing = true;
-                      });
-                    },
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      elevation: 5,
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(color: Colors.white60,
-                          borderRadius: BorderRadius.circular(20),
-                      gradient: const LinearGradient(
-                      colors: [Colors.tealAccent, Colors.deepOrangeAccent],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomRight,
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    // Profile Picture
+                    InkWell(
+                      onTap: _pickImage,
+                      borderRadius: BorderRadius.circular(50),
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundImage: _pickedImageFile != null
+                            ? FileImage(_pickedImageFile!)
+                            : (hasProfilePic
+                            ? NetworkImage(profilePicUrl)
+                            : const AssetImage('assets/images/add_image.png')) as ImageProvider,
+                        backgroundColor: Colors.grey[200],
                       ),
                     ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Username in a Box
-                            _isEditing
-                                ? _buildTextField('Username', _usernameController)
-                                : _buildInfoBox('Name', userData['username'] ?? 'No Username'),
-                            const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                            // Email in a Box
-                            _isEditing
-                                ? _buildTextField('Email', _emailController)
-                                : _buildInfoBox('Mail', userData['email'] ?? 'No Email'),
-                            const SizedBox(height: 16),
-
-                            // Balance in a Box
-                            _buildInfoBox('Balance', '\$${userData['balance'] ?? 0}'),
-                            const SizedBox(height: 16),
-
-                            // Save Changes Button and Cancel Button
-                            if (_isEditing)
-                              Column(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: _saveChanges,
-                                    child: const Text('Save Changes'),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  ElevatedButton(
-                                    onPressed: _cancelChanges,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.deepOrangeAccent, // Change color to red for cancel button
-                                    ),
-                                    child: Text('Cancel'),
-                                  ),
-                                ],
+                    // Card with Gradient and User Info
+                    Expanded(
+                      child: GestureDetector(
+                        onLongPress: () {
+                          setState(() {
+                            _isEditing = true;
+                          });
+                        },
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 5,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white60,
+                              borderRadius: BorderRadius.circular(20),
+                              gradient: const LinearGradient(
+                                colors: [Colors.tealAccent, Colors.deepOrangeAccent],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomRight,
                               ),
-                          ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Username in a Box
+                                _isEditing
+                                    ? _buildTextField('Username', _usernameController)
+                                    : _buildInfoBox('Name', userData['username'] ?? 'No Username'),
+                                const SizedBox(height: 16),
+
+                                // Email in a Box
+                                _isEditing
+                                    ? _buildTextField('Email', _emailController)
+                                    : _buildInfoBox('Mail', userData['email'] ?? 'No Email'),
+                                const SizedBox(height: 16),
+
+                                // Balance in a Box
+                                _buildInfoBox('Balance', '\$${userData['balance'] ?? 0}'),
+                                const SizedBox(height: 16),
+
+                                // Save Changes Button and Cancel Button
+                                if (_isEditing)
+                                  Column(
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: _saveChanges,
+                                        child: const Text('Save Changes'),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ElevatedButton(
+                                        onPressed: _cancelChanges,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.deepOrangeAccent,
+                                        ),
+                                        child: const Text('Cancel'),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                  ],
+                ),
+              );
+            },
+          ),
+
+          // Info bubble overlay
+          if (_showInfoBubble)
+            Positioned(
+              top: 5,
+              right: 15,
+              child: Material(
+                elevation: 4.0,
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    'Hold press to edit information. \nClick to change picture.',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
-          );
-        },
+        ],
       ),
     );
   }

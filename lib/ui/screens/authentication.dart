@@ -20,11 +20,12 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
-  var _isLogin = true;
+  bool _isLogin = true;
   var _enteredUserName = '';
   var _enteredEmail = '';
   var _enteredPass = '';
-  var _isAuthenticating = false;
+  bool _isPasswordVisible = false;
+  bool _isAuthenticating = false;
 
   Future<void> _submit() async {
     final isValid = _formKey.currentState!.validate();
@@ -167,8 +168,19 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           TextFormField(
-                            decoration: const InputDecoration(labelText: 'Password'),
-                            obscureText: true,
+                            decoration: InputDecoration(labelText: 'Password',
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isPasswordVisible = !_isPasswordVisible;
+                                  });
+                                },
+                              ),
+                            ),
+                            obscureText: !_isPasswordVisible,
                             validator: (value) {
                               if (value == null || value.trim().length < 6) {
                                 return 'Password must be at least 6 characters long';
