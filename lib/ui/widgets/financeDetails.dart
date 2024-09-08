@@ -5,14 +5,14 @@ import 'package:intl/intl.dart';
 
 class FinanceDetails extends StatefulWidget {
   final int itemCount;
-  final List<QueryDocumentSnapshot> incomeDocs;
+  final List<QueryDocumentSnapshot> financeDocs;
   final List<Color>? colors; // List of colors for items
   final int selectedIndex;
 
   const FinanceDetails({
     super.key,
     required this.itemCount,
-    required this.incomeDocs,
+    required this.financeDocs,
     required this.selectedIndex,
     this.colors,
   });
@@ -22,7 +22,7 @@ class FinanceDetails extends StatefulWidget {
 }
 
 class _FinanceDetailsState extends State<FinanceDetails> {
-  late List<QueryDocumentSnapshot> _incomeDocs;
+  late List<QueryDocumentSnapshot> _financeDocs;
   late List<Color>? _colors;
   late int _selectedIndex;
   QueryDocumentSnapshot? _lastDeletedItem;
@@ -32,13 +32,13 @@ class _FinanceDetailsState extends State<FinanceDetails> {
   @override
   void initState() {
     super.initState();
-    _incomeDocs = widget.incomeDocs;
+    _financeDocs = widget.financeDocs;
     _colors = widget.colors;
     _selectedIndex = widget.selectedIndex;
   }
 
   Future<void> _handleDelete(String docId, int index) async {
-    final deletedItem = _incomeDocs[index];
+    final deletedItem = _financeDocs[index];
     final itemTitle = deletedItem['title'];
     final itemType = deletedItem['type'];
     final isRecurring = deletedItem['isRecurring'];
@@ -51,7 +51,7 @@ class _FinanceDetailsState extends State<FinanceDetails> {
       _lastDeletedItem = deletedItem;
       _lastItemType = itemType;
       _lastDeletedIndex = index;
-      _incomeDocs.removeAt(index); // Remove item from the list
+      _financeDocs.removeAt(index); // Remove item from the list
     });
 
     try {
@@ -87,7 +87,7 @@ class _FinanceDetailsState extends State<FinanceDetails> {
                 });
 
                 setState(() {
-                  _incomeDocs.insert(_lastDeletedIndex!, _lastDeletedItem!); // Restore item to the list
+                  _financeDocs.insert(_lastDeletedIndex!, _lastDeletedItem!); // Restore item to the list
                 });
               }
             },
@@ -182,6 +182,11 @@ class _FinanceDetailsState extends State<FinanceDetails> {
                     'date': Timestamp.fromDate(selectedDate), // Update the date field
                   });
 
+                  // F
+                  setState(() {
+                    _financeDocs = widget.financeDocs;
+                  });
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text('Item updated successfully'),
@@ -207,9 +212,9 @@ class _FinanceDetailsState extends State<FinanceDetails> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: _incomeDocs.length,
+      itemCount: _financeDocs.length,
       itemBuilder: (context, index) {
-        final income = _incomeDocs[index];
+        final income = _financeDocs[index];
         final title = income['title'];
         final amount = (income['amount'] as num).toDouble();
         final date = (income['date'] as Timestamp).toDate();

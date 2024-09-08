@@ -78,7 +78,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
             }).toList();
             return FinanceDetails(
               itemCount: combinedDocs.length,
-              incomeDocs: combinedDocs,
+              financeDocs : combinedDocs,
               colors: colors,
               selectedIndex: _selectedIndex,
             );
@@ -106,7 +106,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
             return FinanceDetails(
               itemCount: snapshot.data!.docs.length,
-              incomeDocs: snapshot.data!.docs,
+              financeDocs: snapshot.data!.docs,
               colors: List.generate(
                   snapshot.data!.docs.length, (_) => color),
               selectedIndex: _selectedIndex,
