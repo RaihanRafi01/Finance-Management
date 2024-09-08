@@ -27,6 +27,7 @@ class _FinanceDetailsState extends State<FinanceDetails> {
   late int _selectedIndex;
   QueryDocumentSnapshot? _lastDeletedItem;
   int? _lastDeletedIndex;
+  String? _lastItemType;
 
   @override
   void initState() {
@@ -39,11 +40,16 @@ class _FinanceDetailsState extends State<FinanceDetails> {
   Future<void> _handleDelete(String docId, int index) async {
     final deletedItem = _incomeDocs[index];
     final itemTitle = deletedItem['title'];
-    final itemAmount = (deletedItem['amount'] as num).toDouble();
-    final itemDate = (deletedItem['date'] as Timestamp).toDate();
+    final itemType = deletedItem['type'];
+    final isRecurring = deletedItem['isRecurring'];
+    final recurrenceType = deletedItem['recurrenceType'];
+    final uId = deletedItem['uId'];
+    final itemAmount = deletedItem['amount'];
+    final itemDate = deletedItem['date'];
 
     setState(() {
       _lastDeletedItem = deletedItem;
+      _lastItemType = itemType;
       _lastDeletedIndex = index;
       _incomeDocs.removeAt(index); // Remove item from the list
     });
@@ -52,7 +58,7 @@ class _FinanceDetailsState extends State<FinanceDetails> {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection(_selectedIndex == 0 ? 'income' : 'expense')
+          .collection(itemType)
           .doc(docId)
           .delete();
 
@@ -62,16 +68,22 @@ class _FinanceDetailsState extends State<FinanceDetails> {
           action: SnackBarAction(
             label: 'UNDO',
             onPressed: () async {
+              print("Type is:"+itemType);
+              print("Type is 2nd check:"+_lastItemType!);
               if (_lastDeletedItem != null && _lastDeletedIndex != null) {
                 await FirebaseFirestore.instance
                     .collection('users')
                     .doc(FirebaseAuth.instance.currentUser!.uid)
-                    .collection(_selectedIndex == 0 ? 'income' : 'expense')
+                    .collection(_lastItemType!)
                     .doc(_lastDeletedItem!.id)
                     .set({
-                  'title': _lastDeletedItem!['title'],
                   'amount': (itemAmount),
-                  'date': Timestamp.fromDate(itemDate),
+                  'date': itemDate,
+                  'isRecurring': isRecurring,
+                  'recurrenceType': recurrenceType,
+                  'title': itemTitle,
+                  'type': itemType,
+                  'uId': uId
                 });
 
                 setState(() {
@@ -92,84 +104,7 @@ class _FinanceDetailsState extends State<FinanceDetails> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: _incomeDocs.length,
-      itemBuilder: (context, index) {
-        final income = _incomeDocs[index];
-        final title = income['title'];
-        final amount = (income['amount'] as num).toDouble();
-        final date = (income['date'] as Timestamp).toDate();
-        final itemColor = _colors != null ? _colors![index] : Colors.blueGrey;
-        final docId = income.id; // Get the document ID
-
-        return Dismissible(
-          key: Key(docId), // Unique key for each dismissible item
-          direction: DismissDirection.endToStart, // Swipe direction
-          onDismissed: (direction) async {
-            await _handleDelete(docId, index);
-          },
-          background: Container(
-            color: Colors.red, // Background color when swiped
-            child: const Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0),
-                child: Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          child: InkWell(
-            onLongPress: () async {
-              await _showEditDialog(context, docId, title, amount, date);
-            },
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              elevation: 4,
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(16.0),
-                leading: CircleAvatar(
-                  backgroundColor: itemColor,
-                  child: Text(
-                    '${index + 1}', // Display number
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-                title: Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                subtitle: Text(
-                  DateFormat.yMMMd().format(date),
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                trailing: Text(
-                  '\$${amount.toString()}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: itemColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _showEditDialog(BuildContext context, String docId, String currentTitle, double currentAmount, DateTime currentDate) async {
+  Future<void> _showEditDialog(BuildContext context, String docId, String currentTitle, double currentAmount, DateTime currentDate, String currentType) async {
     final titleController = TextEditingController(text: currentTitle);
     final amountController = TextEditingController(text: currentAmount.toString());
     DateTime selectedDate = currentDate; // Initialize selectedDate with currentDate
@@ -233,10 +168,13 @@ class _FinanceDetailsState extends State<FinanceDetails> {
                 final newAmount = double.tryParse(amountController.text) ?? currentAmount;
 
                 try {
+                  // Determine the correct collection based on the document's type
+                  final collectionPath = currentType == 'Income' ? 'Income' : 'Expense';
+
                   await FirebaseFirestore.instance
                       .collection('users')
                       .doc(FirebaseAuth.instance.currentUser!.uid)
-                      .collection(_selectedIndex == 0 ? 'income' : 'expense')
+                      .collection(collectionPath)
                       .doc(docId)
                       .update({
                     'title': newTitle,
@@ -261,6 +199,84 @@ class _FinanceDetailsState extends State<FinanceDetails> {
               },
             ),
           ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: _incomeDocs.length,
+      itemBuilder: (context, index) {
+        final income = _incomeDocs[index];
+        final title = income['title'];
+        final amount = (income['amount'] as num).toDouble();
+        final date = (income['date'] as Timestamp).toDate();
+        final itemColor = _colors != null ? _colors![index] : Colors.blueGrey;
+        final docId = income.id; // Get the document ID
+        final currentType = income['type']; // Get the type of the current item
+
+        return Dismissible(
+          key: Key(docId), // Unique key for each dismissible item
+          direction: DismissDirection.endToStart, // Swipe direction
+          onDismissed: (direction) async {
+            await _handleDelete(docId, index);
+          },
+          background: Container(
+            color: Colors.red, // Background color when swiped
+            child: const Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          child: InkWell(
+            onLongPress: () async {
+              await _showEditDialog(context, docId, title, amount, date, currentType);
+            },
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              elevation: 4,
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16.0),
+                leading: CircleAvatar(
+                  backgroundColor: itemColor,
+                  child: Text(
+                    '${index + 1}', // Display number
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                title: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                subtitle: Text(
+                  DateFormat.yMMMd().format(date),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                trailing: Text(
+                  '\$${amount.toString()}',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: itemColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
         );
       },
     );

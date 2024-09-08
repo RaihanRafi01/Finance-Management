@@ -57,7 +57,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            // Check if snapshot has data and both streams have empty data
+            if (!snapshot.hasData ||
+                (snapshot.data![0].docs.isEmpty && snapshot.data![1].docs.isEmpty)) {
               return _noRecordsWidget(context);
             }
 
@@ -74,7 +76,6 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   ? Colors.greenAccent
                   : Colors.redAccent;
             }).toList();
-
             return FinanceDetails(
               itemCount: combinedDocs.length,
               incomeDocs: combinedDocs,
