@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finance_management/ui/widgets/customAppBar.dart';
+import 'package:finance_management/ui/widgets/noRecord.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -188,26 +189,6 @@ class _ChartScreenState extends State<ChartScreen> {
             ),
             const SizedBox(height: 20),
             ToggleButtons(
-              isSelected: ['weekly', 'monthly', 'yearly']
-                  .map((view) => _selectedView == view)
-                  .toList(),
-              onPressed: (index) {
-                _onViewChanged(['weekly', 'monthly', 'yearly'][index]);
-              },
-              children: const [
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: Text('Weekly')),
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: Text('Monthly')),
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: Text('Yearly')),
-              ],
-            ),
-            const SizedBox(height: 20),
-            ToggleButtons(
               isSelected: ['Income', 'Expense', 'Both']
                   .map((dataType) => _selectedDataType == dataType)
                   .toList(),
@@ -233,8 +214,36 @@ class _ChartScreenState extends State<ChartScreen> {
               ],
             ),
             const SizedBox(height: 20),
+            ToggleButtons(
+              isSelected: ['weekly', 'monthly', 'yearly']
+                  .map((view) => _selectedView == view)
+                  .toList(),
+              onPressed: (index) {
+                _onViewChanged(['weekly', 'monthly', 'yearly'][index]);
+              },
+              children: const [
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text('Weekly')),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text('Monthly')),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text('Yearly')),
+              ],
+            ),
+            const SizedBox(height: 20),
             _incomeGroups.isEmpty && _expenseGroups.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 20),
+                      NoRecord(),
+                    ],
+                  ),
+                )
                 : Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
