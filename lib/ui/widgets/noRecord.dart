@@ -1,3 +1,4 @@
+import 'package:finance_management/ui/screens/home.dart';
 import 'package:finance_management/ui/screens/newFinance.dart';
 import 'package:flutter/material.dart';
 class NoRecord extends StatelessWidget {
@@ -16,10 +17,10 @@ class NoRecord extends StatelessWidget {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const NewFinanceScreen(),
+                  builder: (context) => HomeScreen(index: 2),
                 ),
               );
             },

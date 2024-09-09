@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
             return const SplashScreen();
           }
           if (snapshot.hasData) {
-            return HomeScreen();
+            return HomeScreen(index: 0,);
           }
           return const AuthScreen();
         },

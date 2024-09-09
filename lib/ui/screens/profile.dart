@@ -209,7 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: Colors.white60,
                               borderRadius: BorderRadius.circular(20),
                               gradient: const LinearGradient(
-                                colors: [Colors.tealAccent, Colors.deepOrangeAccent],
+                                colors: [Colors.deepOrangeAccent,Colors.tealAccent],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomRight,
                               ),

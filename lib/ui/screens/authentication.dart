@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finance_management/ui/screens/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +60,10 @@ class _AuthScreenState extends State<AuthScreen> {
           'uId': userCredentials.user!.uid,
         });
       }
+      // Navigate to the HomeScreen after successful login/registration
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomeScreen(index: 0,)),
+      );
     } on FirebaseAuthException catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -104,6 +109,12 @@ class _AuthScreenState extends State<AuthScreen> {
           });
         }
       }
+
+      // Navigate to the HomeScreen after successful login/registration
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomeScreen(index: 0,)),
+      );
+
     } catch (error) {
       print(error.toString());
       ScaffoldMessenger.of(context).clearSnackBars();
