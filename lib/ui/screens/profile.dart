@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:finance_management/ui/screens/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -140,8 +142,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+          backgroundColor: Colors.teal,
         title: const Text('Profile'),
         actions: [
+          IconButton(
+            onPressed: () async {
+              // Sign out from Firebase
+              await FirebaseAuth.instance.signOut();
+              // Sign out from Google (if signed in with Google)
+              GoogleSignIn googleSignIn = GoogleSignIn();
+              if (await googleSignIn.isSignedIn()) {
+                await googleSignIn.signOut();
+              }
+              // Clear all previous routes and navigate to the AuthScreen
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => AuthScreen()),
+              );
+            },
+            icon: const Icon(Icons.exit_to_app_rounded),
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: _toggleInfoBubble,
@@ -206,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(16.0),
                             decoration: BoxDecoration(
-                              color: Colors.white60,
+                              color: Colors.white70,
                               borderRadius: BorderRadius.circular(20),
                               gradient: const LinearGradient(
                                 colors: [Colors.deepOrangeAccent,Colors.tealAccent],
@@ -214,44 +233,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 end: Alignment.bottomRight,
                               ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                // Username in a Box
-                                _isEditing
-                                    ? _buildTextField('Username', _usernameController)
-                                    : _buildInfoBox('Name', userData['username'] ?? 'No Username'),
-                                const SizedBox(height: 16),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // Username in a Box
+                                  _isEditing
+                                      ? _buildTextField('Username', _usernameController)
+                                      : _buildInfoBox('Name', userData['username'] ?? 'No Username'),
+                                  const SizedBox(height: 16),
 
-                                // Email in a Box
-                                _isEditing
-                                    ? _buildTextField('Email', _emailController)
-                                    : _buildInfoBox('Mail', userData['email'] ?? 'No Email'),
-                                const SizedBox(height: 16),
+                                  // Email in a Box
+                                  _isEditing
+                                      ? _buildTextField('Email', _emailController)
+                                      : _buildInfoBox('Mail', userData['email'] ?? 'No Email'),
+                                  const SizedBox(height: 16),
 
-                                // Balance in a Box
-                                _buildInfoBox('Balance', '\$${userData['balance'] ?? 0}'),
-                                const SizedBox(height: 16),
-
-                                // Save Changes Button and Cancel Button
-                                if (_isEditing)
-                                  Column(
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: _saveChanges,
-                                        child: const Text('Save Changes'),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      ElevatedButton(
-                                        onPressed: _cancelChanges,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.deepOrangeAccent,
+                                  // Save Changes Button and Cancel Button
+                                  if (_isEditing)
+                                    Column(
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: _saveChanges,
+                                          child: const Text('Save Changes'),
                                         ),
-                                        child: const Text('Cancel'),
-                                      ),
-                                    ],
-                                  ),
-                              ],
+                                        const SizedBox(height: 8),
+                                        ElevatedButton(
+                                          onPressed: _cancelChanges,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.deepOrangeAccent,
+                                          ),
+                                          child: const Text('Cancel'),
+                                        ),
+                                      ],
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ),

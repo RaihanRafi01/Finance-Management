@@ -1,5 +1,4 @@
 import 'package:finance_management/ui/screens/home.dart';
-import 'package:finance_management/ui/screens/newFinance.dart';
 import 'package:flutter/material.dart';
 class NoRecord extends StatelessWidget {
   const NoRecord({super.key});

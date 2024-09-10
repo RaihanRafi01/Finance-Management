@@ -10,13 +10,15 @@ class AddFinance extends StatefulWidget {
 }
 
 class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateMixin {
-  bool isIncome = true; // Track whether "Income" or "Expense" is selected
+  bool isIncome = true;
+  bool isRecurring = false;
   late AnimationController _controller;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
+    isRecurring = widget.isRecurring;
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -38,6 +40,12 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
     });
   }
 
+  void _toggleRecurring(bool value) {
+    setState(() {
+      isRecurring = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // Define colors for Income and Expense
@@ -45,9 +53,8 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
     final Color iconColor = isIncome ? Colors.teal : Colors.deepOrange;
     final String type = isIncome ? 'Income' : 'Expense';
     final String text = isIncome
-        ? (widget.isRecurring ? 'Monthly Income' : 'Income')
-        : (widget.isRecurring ? 'Monthly Expense' : 'Expense');
-
+        ? (isRecurring ? 'Monthly Income' : 'Regular Income')
+        : (isRecurring ? 'Monthly Expense' : 'Regular Expense');
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -105,6 +112,24 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
                   inactiveTrackColor: iconColor.withOpacity(0.2),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
+                SizedBox(height: 16), // Add spacing between toggles
+                Text( isRecurring ?
+                  'Monthly' : 'Regular',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal[900],
+                  ),
+                ),
+                Switch(
+                  value: isRecurring,
+                  onChanged: _toggleRecurring,
+                  activeColor: Colors.white,
+                  inactiveThumbColor: Colors.white,
+                  activeTrackColor: iconColor.withOpacity(0.5),
+                  inactiveTrackColor: iconColor.withOpacity(0.2),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
               ],
             ),
           ),
@@ -130,7 +155,7 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: SubmitFinance(type: type,isRecurring: widget.isRecurring,),
+                child: SubmitFinance(type: type, isRecurring: isRecurring),
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finance_management/services/recurringFinanceManager.dart';
+import 'package:finance_management/ui/screens/home.dart';
 import 'package:finance_management/ui/screens/incomeExpenseDetails.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -86,9 +87,9 @@ class _SubmitFinanceState extends State<SubmitFinance> {
             label: 'VIEW',
             onPressed: () {
               // Navigate to details screen
-              Navigator.of(context).push(
+              Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => const DetailsScreen(),
+                  builder: (context) => HomeScreen(index: 3),
                 ),
               );
             },

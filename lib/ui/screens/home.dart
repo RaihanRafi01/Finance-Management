@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finance_management/ui/screens/chart.dart';
 import 'package:finance_management/ui/screens/incomeExpenseDetails.dart';
-import 'package:finance_management/ui/screens/monthlyFinance.dart';
 import 'package:finance_management/ui/screens/newFinance.dart';
 import 'package:finance_management/ui/screens/profile.dart';
+import 'package:finance_management/ui/widgets/balanceBox.dart';
 import 'package:finance_management/ui/widgets/customAppBar.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:finance_management/ui/widgets/customCard.dart';
+import 'package:finance_management/ui/widgets/pieChart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -77,42 +79,41 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          StreamBuilder<Map<String, double>>(
-            stream: _getTotalsStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (snapshot.hasData) {
-                final data = snapshot.data!;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Total Income: \$${data['totalIncome']?.toStringAsFixed(2)}'),
-                    Text('Total Expense: \$${data['totalExpense']?.toStringAsFixed(2)}'),
-                    Text('Total Balance: \$${data['totalBalance']?.toStringAsFixed(2)}'),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MonthlyFinanceScreen()),
-                        );
-                      },
-                      child: Text('Add Monthly Finance'),
-                    ),
-                  ],
-                );
-              } else {
-                return Center(child: Text('No data available'));
-              }
-            },
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StreamBuilder<Map<String, double>>(
+              stream: _getTotalsStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  final data = snapshot.data!;
+                  return Column(
+                    children: [
+                      BuildBalanceBox(data['totalBalance']),
+                      SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          BuildCard('Income', data['totalIncome'], Colors.green, Icons.arrow_upward),
+                          BuildCard('Expense', data['totalExpense'], Colors.red, Icons.arrow_downward),
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      BuildPieChart(data['totalIncome']!,data['totalExpense']!,context),
+                    ],
+                  );
+                } else {
+                  return Center(child: Text('No data available'));
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
