@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finance_management/services/recurringFinanceManager.dart';
 import 'package:finance_management/ui/screens/home.dart';
-import 'package:finance_management/ui/screens/incomeExpenseDetails.dart';
+import 'package:finance_management/ui/screens/financeDetails.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -24,13 +24,13 @@ class _SubmitFinanceState extends State<SubmitFinance> {
 
   final RecurringFinanceManager _recurringFinanceManager = RecurringFinanceManager();
 
-  void _presentDatePicker() async {
+  void _datePicker() async {
     final now = DateTime.now();
-    final firstDate = DateTime(now.year - 1, now.month, now.day);
+    final firstDate = DateTime(now.year - 5, now.month, now.day);
     final pickedDate = await showDatePicker(
       context: context,
       firstDate: firstDate,
-      lastDate: now,
+      lastDate: DateTime(now.year, now.month + 1, now.day),
       initialDate: now,
     );
     setState(() {
@@ -158,7 +158,7 @@ class _SubmitFinanceState extends State<SubmitFinance> {
                   label: Text(_selectedDate == null
                       ? 'No date Selected'
                       : DateFormat.yMd().format(_selectedDate!)),
-                  onPressed: _presentDatePicker,
+                  onPressed: _datePicker,
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finance_management/ui/screens/chart.dart';
-import 'package:finance_management/ui/screens/incomeExpenseDetails.dart';
+import 'package:finance_management/ui/screens/financeDetails.dart';
 import 'package:finance_management/ui/screens/newFinance.dart';
 import 'package:finance_management/ui/screens/profile.dart';
 import 'package:finance_management/ui/widgets/balanceBox.dart';
@@ -104,7 +104,7 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 16),
-                      BuildPieChart(data['totalIncome']!,data['totalExpense']!,context),
+                      BuildPieChart(data['totalIncome']!,data['totalExpense']!),
                     ],
                   );
                 } else {

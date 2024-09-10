@@ -146,6 +146,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text('Profile'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: _toggleInfoBubble,
+          ),
+          IconButton(
             onPressed: () async {
               // Sign out from Firebase
               await FirebaseAuth.instance.signOut();
@@ -160,10 +164,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             },
             icon: const Icon(Icons.exit_to_app_rounded),
-          ),
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: _toggleInfoBubble,
           ),
         ],
       ),

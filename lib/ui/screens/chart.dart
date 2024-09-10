@@ -178,7 +178,7 @@ class _ChartScreenState extends State<ChartScreen> {
     List<BarChartGroupData> mergedGroups = _mergeGroups();
 
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Chart',),
+      appBar: const CustomAppBar(title: 'Chart View',),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -199,8 +199,8 @@ class _ChartScreenState extends State<ChartScreen> {
               fillColor: _selectedDataType == 'Income'
                   ? Colors.greenAccent
                   : _selectedDataType == 'Expense'
-                  ? Colors.redAccent
-                  : Colors.blueAccent,
+                  ? Colors.deepOrangeAccent
+                  : Colors.blueGrey,
               children: const [
                 Padding(
                     padding: EdgeInsets.symmetric(horizontal: 12),

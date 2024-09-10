@@ -14,7 +14,7 @@ class _NewFinanceScreenState extends State<NewFinanceScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      appBar: CustomAppBar(title: 'New Finance',),
+      appBar: CustomAppBar(title: 'Add Finance',),
       body: AddFinance(isRecurring: false),
     );
   }
