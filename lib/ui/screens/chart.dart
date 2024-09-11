@@ -393,8 +393,16 @@ class _ChartScreenState extends State<ChartScreen> {
 
   double _calculateYInterval() {
     final maxY = _calculateMaxY();
-    if (maxY <= 5) return 1;
-    if (maxY <= 10) return 2;
-    return 50;
+    if (maxY <= 0) return 1; // Handle case where maxY might be 0 or negative
+    if (maxY <= 1) return 0.1;
+    if (maxY <= 10) return 1;
+    if (maxY <= 100) return 10;
+    if (maxY <= 1000) return 100;
+    if (maxY <= 10000) return 1000;
+    if (maxY <= 100000) return 10000;
+    if (maxY <= 1000000) return 100000;
+    if (maxY <= 10000000) return 1000000;
+    if (maxY <= 100000000) return 10000000;
+    return 100;
   }
 }
