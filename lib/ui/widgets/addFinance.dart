@@ -3,13 +3,15 @@ import 'package:finance_management/services/submitFinance.dart';
 
 class AddFinance extends StatefulWidget {
   final bool isRecurring;
+
   const AddFinance({super.key, required this.isRecurring});
 
   @override
   State<AddFinance> createState() => _AddFinanceState();
 }
 
-class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateMixin {
+class _AddFinanceState extends State<AddFinance>
+    with SingleTickerProviderStateMixin {
   bool isIncome = true;
   bool isRecurring = false;
   late AnimationController _controller;
@@ -49,7 +51,8 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     // Define colors for Income and Expense
-    final Color cardColor = isIncome ? Colors.teal[100]! : Colors.deepOrange[100]!;
+    final Color cardColor =
+        isIncome ? Colors.teal[100]! : Colors.deepOrange[100]!;
     final Color iconColor = isIncome ? Colors.teal : Colors.deepOrange;
     final String type = isIncome ? 'Income' : 'Expense';
     final String text = isIncome
@@ -97,7 +100,7 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.teal[900],
-                        fontFamily: 'Roboto', // Replace with your custom font if needed
+                        fontFamily: 'Roboto',
                       ),
                     ),
                   ],
@@ -113,8 +116,8 @@ class _AddFinanceState extends State<AddFinance> with SingleTickerProviderStateM
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 SizedBox(height: 16), // Add spacing between toggles
-                Text( isRecurring ?
-                  'Monthly' : 'Regular',
+                Text(
+                  isRecurring ? 'Monthly' : 'Regular',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

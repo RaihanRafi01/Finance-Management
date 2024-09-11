@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:finance_management/ui/screens/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31,7 +30,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     final user = FirebaseAuth.instance.currentUser!;
-    final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+    final userDoc =
+        FirebaseFirestore.instance.collection('users').doc(user.uid);
     _userData = userDoc.get().then((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
@@ -72,7 +72,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .update({'picture': downloadUrl});
 
     setState(() {
-      _userData = FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      _userData =
+          FirebaseFirestore.instance.collection('users').doc(user.uid).get();
     });
   }
 
@@ -85,7 +86,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     setState(() {
       _isEditing = false;
-      _userData = FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      _userData =
+          FirebaseFirestore.instance.collection('users').doc(user.uid).get();
     });
   }
 
@@ -142,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.teal,
+        backgroundColor: Colors.teal,
         title: const Text('Profile'),
         actions: [
           IconButton(
@@ -181,12 +183,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
 
               if (!snapshot.hasData || !snapshot.data!.exists) {
-                return const Center(child: Text('No user data found. Please try again later'));
+                return const Center(
+                    child: Text('No user data found. Please try again later'));
               }
 
               final userData = snapshot.data!.data() as Map<String, dynamic>;
               final profilePicUrl = userData['picture'] as String?;
-              final hasProfilePic = profilePicUrl != null && profilePicUrl.isNotEmpty;
+              final hasProfilePic =
+                  profilePicUrl != null && profilePicUrl.isNotEmpty;
 
               return Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -201,8 +205,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         backgroundImage: _pickedImageFile != null
                             ? FileImage(_pickedImageFile!)
                             : (hasProfilePic
-                            ? NetworkImage(profilePicUrl)
-                            : const AssetImage('assets/images/add_image.png')) as ImageProvider,
+                                    ? NetworkImage(profilePicUrl)
+                                    : const AssetImage(
+                                        'assets/images/add_image.png'))
+                                as ImageProvider,
                         backgroundColor: Colors.grey[200],
                       ),
                     ),
@@ -228,7 +234,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: Colors.white70,
                               borderRadius: BorderRadius.circular(20),
                               gradient: const LinearGradient(
-                                colors: [Colors.deepOrangeAccent,Colors.tealAccent],
+                                colors: [
+                                  Colors.deepOrangeAccent,
+                                  Colors.tealAccent
+                                ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomRight,
                               ),
@@ -239,14 +248,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 children: [
                                   // Username in a Box
                                   _isEditing
-                                      ? _buildTextField('Username', _usernameController)
-                                      : _buildInfoBox('Name', userData['username'] ?? 'No Username'),
+                                      ? _buildTextField(
+                                          'Username', _usernameController)
+                                      : _buildInfoBox(
+                                          'Name',
+                                          userData['username'] ??
+                                              'No Username'),
                                   const SizedBox(height: 16),
 
                                   // Email in a Box
                                   _isEditing
-                                      ? _buildTextField('Email', _emailController)
-                                      : _buildInfoBox('Mail', userData['email'] ?? 'No Email'),
+                                      ? _buildTextField(
+                                          'Email', _emailController)
+                                      : _buildInfoBox('Mail',
+                                          userData['email'] ?? 'No Email'),
                                   const SizedBox(height: 16),
 
                                   // Save Changes Button and Cancel Button
@@ -261,7 +276,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ElevatedButton(
                                           onPressed: _cancelChanges,
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.deepOrangeAccent,
+                                            backgroundColor:
+                                                Colors.deepOrangeAccent,
                                           ),
                                           child: const Text('Cancel'),
                                         ),

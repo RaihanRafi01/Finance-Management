@@ -21,18 +21,25 @@ Widget BuildBalanceBox(double? balance) {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 40),
+        Icon(Icons.account_balance_wallet_rounded,
+            color: Colors.white, size: 40),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Balance',
-              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
             Text(
               '\$${(balance ?? 0.0).toStringAsFixed(2)}',
-              style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),

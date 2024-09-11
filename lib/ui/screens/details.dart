@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finance_management/ui/screens/authentication.dart';
-import 'package:finance_management/ui/widgets/customAppBar.dart';
 import 'package:finance_management/ui/widgets/financeDetails.dart';
 import 'package:finance_management/ui/widgets/noRecord.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -97,7 +96,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   BottomNavigationBarItem(
                     icon: Icon(
                       Icons.monetization_on,
-                      color: _selectedIndex == 0 ? Colors.greenAccent : Colors.grey,
+                      color: _selectedIndex == 0
+                          ? Colors.greenAccent
+                          : Colors.grey,
                     ),
                     label: 'Income',
                   ),
@@ -111,13 +112,15 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   BottomNavigationBarItem(
                     icon: Icon(
                       Icons.money_off,
-                      color: _selectedIndex == 2 ? Colors.redAccent : Colors.grey,
+                      color:
+                          _selectedIndex == 2 ? Colors.redAccent : Colors.grey,
                     ),
                     label: 'Expense',
                   ),
                 ],
                 currentIndex: _selectedIndex,
-                selectedItemColor: _selectedIndex == 2 ? Colors.redAccent : Colors.teal,
+                selectedItemColor:
+                    _selectedIndex == 2 ? Colors.redAccent : Colors.teal,
                 unselectedItemColor: Colors.grey,
                 onTap: _onItemTapped,
               ),
@@ -126,68 +129,75 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   padding: const EdgeInsets.all(12.0),
                   child: _selectedIndex == 1
                       ? StreamBuilder<List<QuerySnapshot>>(
-                    stream: _getCombinedIncomeExpenseStream(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                          stream: _getCombinedIncomeExpenseStream(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
 
-                      if (!snapshot.hasData ||
-                          (snapshot.data![0].docs.isEmpty && snapshot.data![1].docs.isEmpty)) {
-                        return NoRecord();
-                      }
+                            if (!snapshot.hasData ||
+                                (snapshot.data![0].docs.isEmpty &&
+                                    snapshot.data![1].docs.isEmpty)) {
+                              return NoRecord();
+                            }
 
-                      final combinedDocs = [
-                        ...snapshot.data![0].docs,
-                        ...snapshot.data![1].docs
-                      ]..sort((a, b) => (b['date'] as Timestamp)
-                          .compareTo(a['date'] as Timestamp));
+                            final combinedDocs = [
+                              ...snapshot.data![0].docs,
+                              ...snapshot.data![1].docs
+                            ]..sort((a, b) => (b['date'] as Timestamp)
+                                .compareTo(a['date'] as Timestamp));
 
-                      final colors = combinedDocs.map((doc) {
-                        final data = doc.data() as Map<String, dynamic>;
-                        final type = data['type'] as String?;
-                        return type == 'Income'
-                            ? Colors.greenAccent
-                            : Colors.redAccent;
-                      }).toList();
+                            final colors = combinedDocs.map((doc) {
+                              final data = doc.data() as Map<String, dynamic>;
+                              final type = data['type'] as String?;
+                              return type == 'Income'
+                                  ? Colors.greenAccent
+                                  : Colors.redAccent;
+                            }).toList();
 
-                      return FinanceDetails(
-                        itemCount: combinedDocs.length,
-                        financeDocs: combinedDocs,
-                        colors: colors,
-                        selectedIndex: _selectedIndex,
-                      );
-                    },
-                  )
+                            return FinanceDetails(
+                              itemCount: combinedDocs.length,
+                              financeDocs: combinedDocs,
+                              colors: colors,
+                              selectedIndex: _selectedIndex,
+                            );
+                          },
+                        )
                       : StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(uid)
-                        .collection(_selectedIndex == 0 ? 'Income' : 'Expense')
-                        .orderBy('date', descending: true)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                          stream: FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(uid)
+                              .collection(
+                                  _selectedIndex == 0 ? 'Income' : 'Expense')
+                              .orderBy('date', descending: true)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
 
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return NoRecord();
-                      }
+                            if (!snapshot.hasData ||
+                                snapshot.data!.docs.isEmpty) {
+                              return NoRecord();
+                            }
 
-                      final color = _selectedIndex == 0
-                          ? Colors.greenAccent
-                          : Colors.redAccent;
+                            final color = _selectedIndex == 0
+                                ? Colors.greenAccent
+                                : Colors.redAccent;
 
-                      return FinanceDetails(
-                        itemCount: snapshot.data!.docs.length,
-                        financeDocs: snapshot.data!.docs,
-                        colors: List.generate(
-                            snapshot.data!.docs.length, (_) => color),
-                        selectedIndex: _selectedIndex,
-                      );
-                    },
-                  ),
+                            return FinanceDetails(
+                              itemCount: snapshot.data!.docs.length,
+                              financeDocs: snapshot.data!.docs,
+                              colors: List.generate(
+                                  snapshot.data!.docs.length, (_) => color),
+                              selectedIndex: _selectedIndex,
+                            );
+                          },
+                        ),
                 ),
               ),
             ],

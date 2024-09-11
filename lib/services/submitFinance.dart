@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finance_management/services/recurringFinanceManager.dart';
 import 'package:finance_management/ui/screens/home.dart';
-import 'package:finance_management/ui/screens/financeDetails.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +8,8 @@ import 'package:intl/intl.dart';
 class SubmitFinance extends StatefulWidget {
   final String type;
   final bool isRecurring; // 'income' or 'expense'
-  const SubmitFinance({super.key, required this.type, required this.isRecurring});
+  const SubmitFinance(
+      {super.key, required this.type, required this.isRecurring});
 
   @override
   State<SubmitFinance> createState() => _SubmitFinanceState();
@@ -22,7 +22,15 @@ class _SubmitFinanceState extends State<SubmitFinance> {
   DateTime? _selectedDate;
   bool _isLoading = false;
 
-  final RecurringFinanceManager _recurringFinanceManager = RecurringFinanceManager();
+  final RecurringFinanceManager _recurringFinanceManager =
+      RecurringFinanceManager();
+
+  @override
+  void initState() {
+    super.initState();
+    // Set _selectedDate to today's date initially
+    _selectedDate = DateTime.now();
+  }
 
   void _datePicker() async {
     final now = DateTime.now();
@@ -31,11 +39,13 @@ class _SubmitFinanceState extends State<SubmitFinance> {
       context: context,
       firstDate: firstDate,
       lastDate: DateTime(now.year, now.month + 1, now.day),
-      initialDate: now,
+      initialDate: _selectedDate ?? now,
     );
-    setState(() {
-      _selectedDate = pickedDate;
-    });
+    if (pickedDate != null) {
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+    }
   }
 
   void _submitForm() async {
@@ -155,9 +165,11 @@ class _SubmitFinanceState extends State<SubmitFinance> {
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.calendar_month),
-                  label: Text(_selectedDate == null
-                      ? 'No date Selected'
-                      : DateFormat.yMd().format(_selectedDate!)),
+                  label: Text(
+                    _selectedDate == null
+                        ? 'No date Selected'
+                        : DateFormat.yMd().format(_selectedDate!),
+                  ),
                   onPressed: _datePicker,
                 ),
                 const SizedBox(height: 20),
@@ -165,8 +177,9 @@ class _SubmitFinanceState extends State<SubmitFinance> {
                   onPressed: _isLoading ? null : _submitForm,
                   child: _isLoading
                       ? const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  )
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
                       : const Text('Submit'),
                 ),
               ],
@@ -177,6 +190,7 @@ class _SubmitFinanceState extends State<SubmitFinance> {
     );
   }
 }
+
 extension Capitalize on String {
   String capitalize() {
     if (this == null) return '';

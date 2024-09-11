@@ -9,8 +9,7 @@ class ChartScreen extends StatefulWidget {
   const ChartScreen({super.key});
 
   @override
-  State<ChartScreen> createState() =>
-      _ChartScreenState();
+  State<ChartScreen> createState() => _ChartScreenState();
 }
 
 class _ChartScreenState extends State<ChartScreen> {
@@ -178,7 +177,9 @@ class _ChartScreenState extends State<ChartScreen> {
     List<BarChartGroupData> mergedGroups = _mergeGroups();
 
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Chart View',),
+      appBar: const CustomAppBar(
+        title: 'Chart View',
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -195,12 +196,13 @@ class _ChartScreenState extends State<ChartScreen> {
               onPressed: (index) {
                 _onDataTypeChanged(['Income', 'Expense', 'Both'][index]);
               },
-              selectedColor: Colors.white, // Text color when selected
+              selectedColor: Colors.white,
+              // Text color when selected
               fillColor: _selectedDataType == 'Income'
                   ? Colors.greenAccent
                   : _selectedDataType == 'Expense'
-                  ? Colors.deepOrangeAccent
-                  : Colors.blueGrey,
+                      ? Colors.deepOrangeAccent
+                      : Colors.blueGrey,
               children: const [
                 Padding(
                     padding: EdgeInsets.symmetric(horizontal: 12),
@@ -236,42 +238,42 @@ class _ChartScreenState extends State<ChartScreen> {
             const SizedBox(height: 20),
             _incomeGroups.isEmpty && _expenseGroups.isEmpty
                 ? Center(
-                  child: Column(
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 20),
-                      NoRecord(),
-                    ],
-                  ),
-                )
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 20),
+                        NoRecord(),
+                      ],
+                    ),
+                  )
                 : Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  width: 600,
-                  child: BarChart(
-                    BarChartData(
-                      minY: 0,
-                      maxY: _calculateMaxY(),
-                      titlesData: FlTitlesData(
-                        bottomTitles: _buildBottomTitles(),
-                        leftTitles: _buildLeftTitles(),
-                        topTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width: 600,
+                        child: BarChart(
+                          BarChartData(
+                            minY: 0,
+                            maxY: _calculateMaxY(),
+                            titlesData: FlTitlesData(
+                              bottomTitles: _buildBottomTitles(),
+                              leftTitles: _buildLeftTitles(),
+                              topTitles: AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false)),
+                              rightTitles: AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false)),
+                            ),
+                            borderData: FlBorderData(
+                              show: true,
+                              border: Border.all(
+                                  color: const Color(0xff37434d), width: 1),
+                            ),
+                            barGroups: mergedGroups,
+                          ),
+                        ),
                       ),
-                      borderData: FlBorderData(
-                        show: true,
-                        border: Border.all(
-                            color: const Color(0xff37434d), width: 1),
-                      ),
-                      barGroups: mergedGroups,
                     ),
                   ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -291,7 +293,19 @@ class _ChartScreenState extends State<ChartScreen> {
                 ? weekdays[value.toInt()]
                 : '';
           } else if (_selectedView == 'monthly') {
-            final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+            final months = [
+              'Jan',
+              'Feb',
+              'Mar',
+              'Apr',
+              'May',
+              'Jun',
+              'Jul',
+              'Aug',
+              'Sep',
+              'Oct',
+              'Nov',
+              'Dec'
             ];
             title = (value.toInt() >= 0 && value.toInt() < months.length)
                 ? months[value.toInt()]

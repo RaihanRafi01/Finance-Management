@@ -68,8 +68,8 @@ class _FinanceDetailsState extends State<FinanceDetails> {
           action: SnackBarAction(
             label: 'UNDO',
             onPressed: () async {
-              print("Type is:"+itemType);
-              print("Type is 2nd check:"+_lastItemType!);
+              print("Type is:" + itemType);
+              print("Type is 2nd check:" + _lastItemType!);
               if (_lastDeletedItem != null && _lastDeletedIndex != null) {
                 await FirebaseFirestore.instance
                     .collection('users')
@@ -87,7 +87,8 @@ class _FinanceDetailsState extends State<FinanceDetails> {
                 });
 
                 setState(() {
-                  _financeDocs.insert(_lastDeletedIndex!, _lastDeletedItem!); // Restore item to the list
+                  _financeDocs.insert(_lastDeletedIndex!,
+                      _lastDeletedItem!); // Restore item to the list
                 });
               }
             },
@@ -104,10 +105,18 @@ class _FinanceDetailsState extends State<FinanceDetails> {
     }
   }
 
-  Future<void> _showEditDialog(BuildContext context, String docId, String currentTitle, double currentAmount, DateTime currentDate, String currentType) async {
+  Future<void> _showEditDialog(
+      BuildContext context,
+      String docId,
+      String currentTitle,
+      double currentAmount,
+      DateTime currentDate,
+      String currentType) async {
     final titleController = TextEditingController(text: currentTitle);
-    final amountController = TextEditingController(text: currentAmount.toString());
-    DateTime selectedDate = currentDate; // Initialize selectedDate with currentDate
+    final amountController =
+        TextEditingController(text: currentAmount.toString());
+    DateTime selectedDate =
+        currentDate; // Initialize selectedDate with currentDate
 
     return showDialog<void>(
       context: context,
@@ -165,11 +174,13 @@ class _FinanceDetailsState extends State<FinanceDetails> {
               child: const Text('Save'),
               onPressed: () async {
                 final newTitle = titleController.text;
-                final newAmount = double.tryParse(amountController.text) ?? currentAmount;
+                final newAmount =
+                    double.tryParse(amountController.text) ?? currentAmount;
 
                 try {
                   // Determine the correct collection based on the document's type
-                  final collectionPath = currentType == 'Income' ? 'Income' : 'Expense';
+                  final collectionPath =
+                      currentType == 'Income' ? 'Income' : 'Expense';
 
                   await FirebaseFirestore.instance
                       .collection('users')
@@ -179,7 +190,8 @@ class _FinanceDetailsState extends State<FinanceDetails> {
                       .update({
                     'title': newTitle,
                     'amount': newAmount,
-                    'date': Timestamp.fromDate(selectedDate), // Update the date field
+                    'date': Timestamp.fromDate(selectedDate),
+                    // Update the date field
                   });
 
                   // F
@@ -223,8 +235,10 @@ class _FinanceDetailsState extends State<FinanceDetails> {
         final currentType = income['type']; // Get the type of the current item
 
         return Dismissible(
-          key: Key(docId), // Unique key for each dismissible item
-          direction: DismissDirection.endToStart, // Swipe direction
+          key: Key(docId),
+          // Unique key for each dismissible item
+          direction: DismissDirection.endToStart,
+          // Swipe direction
           onDismissed: (direction) async {
             await _handleDelete(docId, index);
           },
@@ -243,7 +257,8 @@ class _FinanceDetailsState extends State<FinanceDetails> {
           ),
           child: InkWell(
             onLongPress: () async {
-              await _showEditDialog(context, docId, title, amount, date, currentType);
+              await _showEditDialog(
+                  context, docId, title, amount, date, currentType);
             },
             child: Card(
               shape: RoundedRectangleBorder(

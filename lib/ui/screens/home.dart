@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finance_management/ui/screens/chart.dart';
-import 'package:finance_management/ui/screens/financeDetails.dart';
+import 'package:finance_management/ui/screens/details.dart';
 import 'package:finance_management/ui/screens/newFinance.dart';
 import 'package:finance_management/ui/screens/profile.dart';
 import 'package:finance_management/ui/widgets/balanceBox.dart';
@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
   final int index;
+
   const HomeScreen({super.key, required this.index});
 
   @override
@@ -56,7 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
         buttonBackgroundColor: Colors.cyan,
         color: Colors.teal,
         animationDuration: const Duration(milliseconds: 300),
-        index: _currentIndex,  // Update this line to reflect the current index
+        index: _currentIndex,
+        // Update this line to reflect the current index
         items: const <Widget>[
           Icon(Icons.home_rounded, size: 26, color: Colors.white),
           Icon(Icons.bar_chart_rounded, size: 26, color: Colors.white),
@@ -99,12 +101,15 @@ class HomePage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          BuildCard('Income', data['totalIncome'], Colors.green, Icons.arrow_upward),
-                          BuildCard('Expense', data['totalExpense'], Colors.red, Icons.arrow_downward),
+                          BuildCard('Income', data['totalIncome'], Colors.green,
+                              Icons.arrow_upward),
+                          BuildCard('Expense', data['totalExpense'], Colors.red,
+                              Icons.arrow_downward),
                         ],
                       ),
                       SizedBox(height: 16),
-                      BuildPieChart(data['totalIncome']!,data['totalExpense']!),
+                      BuildPieChart(
+                          data['totalIncome']!, data['totalExpense']!),
                     ],
                   );
                 } else {

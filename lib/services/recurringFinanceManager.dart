@@ -6,21 +6,20 @@ class RecurringFinanceManager {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Call this method when the app starts
   Future<void> checkAndAddRecurringFinance() async {
     final prefs = await SharedPreferences.getInstance();
-    final lastCheckedMonth = prefs.getInt('lastCheckedMonth') ?? DateTime.now().month;
+    final lastCheckedMonth =
+        prefs.getInt('lastCheckedMonth') ?? DateTime.now().month;
     final currentMonth = DateTime.now().month;
     final currentYear = DateTime.now().year;
 
     print('Last Checked Month: $lastCheckedMonth');
     print('Current Month: $currentMonth');
 
-    // If it's a new month, check and add recurring entries
-    if (currentMonth != lastCheckedMonth || currentYear != DateTime.now().year) {
+    if (currentMonth != lastCheckedMonth ||
+        currentYear != DateTime.now().year) {
       await _checkAndAddRecurringEntries();
 
-      // Update the last checked month in shared preferences
       await prefs.setInt('lastCheckedMonth', currentMonth);
     }
   }
@@ -67,14 +66,20 @@ class RecurringFinanceManager {
 
         // Update to the next occurrence date
         nextDate = _getFirstDayOfNextMonth(nextDate);
-        await _firestore.collection('users').doc(uid).collection(collection).doc(doc.id).update({
+        await _firestore
+            .collection('users')
+            .doc(uid)
+            .collection(collection)
+            .doc(doc.id)
+            .update({
           'date': nextDate, // Update to the next occurrence date
         });
       }
     }
   }
 
-  Future<void> _addNewEntry(String collection, Map<String, dynamic> data, DateTime newDate) async {
+  Future<void> _addNewEntry(
+      String collection, Map<String, dynamic> data, DateTime newDate) async {
     final uid = _auth.currentUser?.uid;
 
     if (uid == null) {

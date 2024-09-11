@@ -1,10 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:finance_management/ui/screens/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 final _firebase = FirebaseAuth.instance;
@@ -40,7 +37,7 @@ class _AuthScreenState extends State<AuthScreen> {
       });
       if (_isLogin) {
         // LOGIN
-        final userCredentials = await _firebase.signInWithEmailAndPassword(
+        await _firebase.signInWithEmailAndPassword(
           email: _enteredEmail,
           password: _enteredPass,
         );
@@ -50,7 +47,8 @@ class _AuthScreenState extends State<AuthScreen> {
           email: _enteredEmail,
           password: _enteredPass,
         );
-        await FirebaseFirestore.instance.collection('users')
+        await FirebaseFirestore.instance
+            .collection('users')
             .doc(userCredentials.user!.uid)
             .set({
           'username': _enteredUserName,
@@ -62,7 +60,10 @@ class _AuthScreenState extends State<AuthScreen> {
       }
       // Navigate to the HomeScreen after successful login/registration
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen(index: 0,)),
+        MaterialPageRoute(
+            builder: (context) => const HomeScreen(
+                  index: 0,
+                )),
       );
     } on FirebaseAuthException catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -83,7 +84,8 @@ class _AuthScreenState extends State<AuthScreen> {
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -94,8 +96,8 @@ class _AuthScreenState extends State<AuthScreen> {
       final user = userCredential.user;
 
       if (user != null) {
-        // Handle successful sign-in
-        final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+        final userDoc =
+            FirebaseFirestore.instance.collection('users').doc(user.uid);
         final userSnapshot = await userDoc.get();
 
         if (!userSnapshot.exists) {
@@ -112,9 +114,11 @@ class _AuthScreenState extends State<AuthScreen> {
 
       // Navigate to the HomeScreen after successful login/registration
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen(index: 0,)),
+        MaterialPageRoute(
+            builder: (context) => const HomeScreen(
+                  index: 0,
+                )),
       );
-
     } catch (error) {
       print(error.toString());
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -133,11 +137,34 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                margin: EdgeInsets.only(top: 30, bottom: 20, left: 20, right: 20),
-                child: Text(
-                  'Authentication',
-                  style: Theme.of(context).textTheme.headlineMedium,
+              Card(
+                margin: const EdgeInsets.all(20),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Container(
+                  width: double.maxFinite,
+                  padding: const EdgeInsets.all(25),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.teal,
+                        Colors.greenAccent,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Text(
+                    _isLogin ? 'Login' : 'Registration',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
               Card(
@@ -152,9 +179,12 @@ class _AuthScreenState extends State<AuthScreen> {
                         children: [
                           if (!_isLogin)
                             TextFormField(
-                              decoration: const InputDecoration(labelText: 'Username'),
+                              decoration:
+                                  const InputDecoration(labelText: 'Username'),
                               validator: (value) {
-                                if (value == null || value.trim().isEmpty || value.trim().length < 3) {
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    value.trim().length < 3) {
                                   return 'Please enter a valid username';
                                 }
                                 return null;
@@ -164,12 +194,15 @@ class _AuthScreenState extends State<AuthScreen> {
                               },
                             ),
                           TextFormField(
-                            decoration: const InputDecoration(labelText: 'Email'),
+                            decoration:
+                                const InputDecoration(labelText: 'Email'),
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
                             validator: (value) {
-                              if (value == null || value.trim().isEmpty || !value.contains('@')) {
+                              if (value == null ||
+                                  value.trim().isEmpty ||
+                                  !value.contains('@')) {
                                 return 'Please enter a valid email address';
                               }
                               return null;
@@ -179,10 +212,13 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           TextFormField(
-                            decoration: InputDecoration(labelText: 'Password',
+                            decoration: InputDecoration(
+                              labelText: 'Password',
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                  _isPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -214,18 +250,23 @@ class _AuthScreenState extends State<AuthScreen> {
                             ElevatedButton(
                               onPressed: _signInWithGoogle,
                               child: const Row(
-                                mainAxisSize: MainAxisSize.min, // Ensures the button's size fits its content
+                                mainAxisSize: MainAxisSize.min,
+                                // Ensures the button's size fits its content
                                 children: <Widget>[
-                                  Image(image: AssetImage('assets/images/google.png')),
-                                  SizedBox(width: 8.0), // Adds space between the icon and text
+                                  Image(
+                                      image: AssetImage(
+                                          'assets/images/google.png')),
+                                  SizedBox(width: 8.0),
+                                  // Adds space between the icon and text
                                   Text(
                                     'Sign in with Google',
-                                    style: TextStyle(fontSize: 16.0), // Adjust text style as needed
+                                    style: TextStyle(
+                                        fontSize:
+                                            16.0), // Adjust text style as needed
                                   ),
                                 ],
                               ),
-                            )
-                          ,
+                            ),
                           if (!_isAuthenticating)
                             TextButton(
                               onPressed: () {
@@ -234,7 +275,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 });
                               },
                               child: Text(
-                                _isLogin ? 'Create an account' : 'I already have an account.',
+                                _isLogin
+                                    ? 'Create an account'
+                                    : 'I already have an account.',
                               ),
                             ),
                         ],
