@@ -1,33 +1,34 @@
 import 'package:flutter/material.dart';
 
 Widget BuildBalanceBox(double? balance) {
-  return SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    child: Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.teal, Colors.cyan],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-        ],
+  return Container(
+    width: double.maxFinite,
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Colors.teal, Colors.cyan],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
       ),
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 8,
+          offset: Offset(0, 4),
+        ),
+      ],
+    ),
+    child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.account_balance_wallet_rounded,
               color: Colors.white, size: 40),
           SizedBox(width: 20),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 'Balance',
