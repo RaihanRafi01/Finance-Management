@@ -8,7 +8,7 @@ This Flutter app is designed for managing finances, including tracking income an
 
 - **Gmail Authentication:** Secure user login with Google accounts.
 - **Cloud Firestore:** Manage and store user data.
-- **Update Delete Expense**
+- **CRUD Operation**
 - **Cloud Storage:** Upload and retrieve images.
 - **Income vs. Expense Chart:** Visualize and compare income and expenses.
 - **Bar Chart:** Display financial trends.
