@@ -21,6 +21,8 @@ To set up and run this project, follow these steps:
 
 ###  Clone the Repository
 
-Open your terminal and clone the repository:
+- Open your terminal and clone the repository:
 
 https://github.com/RaihanRafi01/Finance-Management.git
+
+- Install Dependencies
