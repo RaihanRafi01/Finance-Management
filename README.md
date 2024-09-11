@@ -1,16 +1,26 @@
-# finance_management
+# Finance Management App
 
-A new Flutter project.
+## Overview
+
+This Flutter app is designed for managing finances, including tracking income and expenses. It uses Firebase for authentication, data management, and image storage. The app features various financial visualizations and tools for effective financial management.
+
+## Features
+
+- **Gmail Authentication:** Secure user login with Google accounts.
+- **Cloud Firestore:** Manage and store user data.
+- **Update Delete Expense**
+- **Cloud Storage:** Upload and retrieve images.
+- **Income vs. Expense Chart:** Visualize and compare income and expenses.
+- **Bar Chart:** Display financial trends.
+- **Monthly Finance Add:** Automatically add recurring income and expenses.
+- **Clean and Intuitive UI:** Easy navigation and user-friendly design.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+To set up and run this project, follow these steps:
 
-A few resources to get you started if this is your first Flutter project:
+###  Clone the Repository
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Open your terminal and clone the repository:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+https://github.com/RaihanRafi01/Finance-Management.git
